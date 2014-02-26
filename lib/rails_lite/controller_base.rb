@@ -12,7 +12,8 @@ class ControllerBase
   def initialize(req, res, route_params = {})
     @req = req
     @res = res
-    @params = Params.new(req).params
+
+    @params = Params.new(req, route_params).params
     @already_rendered= false
     @hi = "hi"
   end
@@ -22,15 +23,14 @@ class ControllerBase
   # later raise an error if the developer tries to double render
   def render_content(body, content_type= "text/text")
 
+
     @res.content_type=(content_type)
     @res.body = body
+
     @already_rendered = true
     @res
   end
 
-  def params
-    @params
-  end
 
 
   # helper method to alias @already_rendered
@@ -49,32 +49,22 @@ class ControllerBase
     @res
   end
 
-  def get_binding
-    self.binding
-  end
-
 
   # use ERB and binding to evaluate templates
   # pass the rendered html to render_content
-  def bind_helper
-    self.attributes.each
-  end
-
   def render(template_name)
     raise "Already Rendered" if already_rendered?
     @already_rendered = true
     controller_name = self.class.to_s
     controller_name = controller_name.underscore
     full_name = "views/#{ controller_name }/#{ template_name }.html.erb"
-
     e = ERB.new(File.read(full_name))
-
-    v = get_binding
-
-    @res.body = e.result(b = v)
+    v = binding
+    @res.body = e.result(v)
     session
     session.store_session(@res)
-    render_content(@res.body)
+
+    render_content(@req.body)
   end
 
   # method exposing a `Session` object
@@ -84,5 +74,6 @@ class ControllerBase
 
   # use this with the router to call action_name (:index, :show, :create...)
   def invoke_action(name)
+    self.send(name)
   end
 end

@@ -9,11 +9,18 @@ class Params
   attr_reader :params
 
   def initialize(req, route_params = {})
-    @params = parse_www_encoded_form(req.query_string)
+    @params=route_params
+    if req.query_string
+      @params.merge(parse_www_encoded_form(req.query_string))
+    end
+    if req.body
+      @params.merge(parse_www_encoded_form(req.body))
+    end
   end
 
   def [](key)
-    @params[key]
+   return @params[key] if @params[key]
+   @params[@params.keys.first].[](key)
   end
 
   def permit(*keys)
@@ -21,6 +28,7 @@ class Params
   end
 
   def require(key)
+    params[key]
   end
 
   def permitted?(key)
@@ -29,16 +37,10 @@ class Params
   def to_s
   end
 
-  class AttributeNotFoundError < ArgumentError; end;
-
   private
   def parse_www_encoded_form(www_encoded_form)
-    stuff = URI.decode_www_form(www_encoded_form)
-    #hash = stuff.map{|thing| {thing[0] => thing[1]}}
-    alf= stuff.map {|hash|[hash[0].gsub("]","").split("["),hash[1]]}
-    alf.each{|m|m.flatten!}
-    alf.map!{|array| hashizer(array)}
-    @params = merger(alf)
+    @params = merger( parse_key(www_encoded_form)
+                    .map!{|array| hashizer(array)} )[0]
   end
 
   def hashizer(array)
@@ -46,10 +48,15 @@ class Params
     {array.shift => hashizer(array)}
   end
 
+  def merger(array)
+    return array if array.count == 1
+    array[0] = deep_merge(array.shift, array[0])
+    merger(array)
+  end
 
   def deep_merge(hash1, hash2)
     merged = {}
-    debugger
+
     shared_keys = hash1.keys & hash2.keys
     shared_keys.each do |key|
       merged[key] = deep_merge(hash1[key], hash2[key])
@@ -63,17 +70,10 @@ class Params
     merged
   end
 
-  def merger(array)
-    return array if array.count == 1
-    array[0] = deep_merge(array.shift, array[0])
-    merger(array)
-  end
-
-
-
-  # this should return an array
-  # user[address][street] should return ['user', 'address', 'street']
   def parse_key(key)
+    URI.decode_www_form(key)
+    .map{|hash|[hash[0].gsub("]","").split("["),hash[1]]}
+    .each{|m|m.flatten!}
   end
 end
 

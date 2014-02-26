@@ -24,7 +24,7 @@ class ExampleController < ControllerBase
   <input type="submit">
 </form>
 END
-
+debugger
     render_content(page, "text/html")
   end
 end

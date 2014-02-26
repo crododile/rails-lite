@@ -36,6 +36,6 @@ def merger(array)
   array[0] = deep_merge(array.shift, array[0])
   merger(array)
 end
-
+debugger
 data  =parse_www_encoded_form("user[address][street]=main&user[address][zip]=89436")
 p data
