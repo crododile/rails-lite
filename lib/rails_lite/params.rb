@@ -16,26 +16,37 @@ class Params
     if req.body
       @params.merge(parse_www_encoded_form(req.body))
     end
+
+    @permitted = []
   end
 
   def [](key)
-   return @params[key] if @params[key]
-   @params[@params.keys.first].[](key)
+
+    return @params[key] if @params[key]
+    @params[@params.keys.first].[](key)
+
   end
 
-  def permit(*keys)
 
+
+
+  def permit(*keys)
+    keys.each {|key| @permitted << key }
   end
 
   def require(key)
     params[key]
+    raise Params::AttributeNotFoundError if params[key].nil?
   end
 
   def permitted?(key)
+    @permitted.include?(key)
   end
 
   def to_s
   end
+
+  class AttributeNotFoundError < ArgumentError; end;
 
   private
   def parse_www_encoded_form(www_encoded_form)

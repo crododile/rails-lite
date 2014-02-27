@@ -29,12 +29,12 @@ describe ControllerBase do
     describe "#already_rendered?" do
       let(:users_controller2) { UsersController.new(req, res) }
       it "is false before rendering" do
-        users_controller2.already_rendered?.should be_false
+        users_controller2.already_rendered?.should == false
       end
 
       it "is true after rendering content" do
         users_controller2.render_content "sombody", "text/html"
-        users_controller2.already_rendered?.should be_true
+        users_controller2.already_rendered?.should == true
       end
 
       it "raises an error when attempting to render twice" do
@@ -62,12 +62,12 @@ describe ControllerBase do
     describe "#already_rendered?" do
       let(:users_controller2) { UsersController.new(req, res) }
       it "is false before rendering" do
-        users_controller2.already_rendered?.should be_false
+        users_controller2.already_rendered?.should == false
       end
 
       it "is true after rendering content" do
         users_controller2.redirect_to("http://google.com")
-        users_controller2.already_rendered?.should be_true
+        users_controller2.already_rendered?.should == true
       end
 
       it "raises an error when attempting to render twice" do
@@ -86,6 +86,7 @@ describe ControllerBase do
 
     it "renders the html of the index view" do
       users_controller.res.body.should include("users")
+
       users_controller.res.body.should include("<h1>")
       users_controller.res.content_type.should == "text/html"
     end
@@ -93,12 +94,12 @@ describe ControllerBase do
     describe "#already_rendered?" do
       let(:users_controller2) { UsersController.new(req, res) }
       it "is false before rendering" do
-        users_controller2.already_rendered?.should be_false
+        users_controller2.already_rendered?.should == false
       end
 
       it "is true after rendering content" do
         users_controller2.render(:index)
-        users_controller2.already_rendered?.should be_true
+        users_controller2.already_rendered?.should == true
       end
 
       it "raises an error when attempting to render twice" do
@@ -107,6 +108,6 @@ describe ControllerBase do
           users_controller2.render(:index)
         end.to raise_error
       end
-    end
+   end
   end
 end

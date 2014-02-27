@@ -27,6 +27,7 @@ describe "the symphony of things" do
       route = Route.new(Regexp.new("^/statuses/(?<id>\\d+)$"), :get, Ctrlr, :route_render)
       req.stub(:path) { "/statuses/1" }
       req.stub(:request_method) { :get }
+      debugger
       route.run(req, res)
       res.body.should == "testing"
     end

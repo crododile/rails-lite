@@ -72,6 +72,7 @@ describe Router do
     end
 
     it "doesn't match an incorrect route" do
+
       subject.add_route(Regexp.new("^/users$"), :get, :x, :x)
       req.stub(:path) { "/incorrect_path" }
       req.stub(:request_method) { :get }
